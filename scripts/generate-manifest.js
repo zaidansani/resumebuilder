@@ -5,6 +5,7 @@ import { fileURLToPath } from "url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const TEMPLATES_DIR = path.join(__dirname, "..", "public", "typst", "templates")
 const OUT = path.join(TEMPLATES_DIR, "manifest.json")
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ""
 
 function readEntries(dir, urlBase, readSidecar = false) {
   if (!fs.existsSync(dir)) return []
@@ -35,7 +36,7 @@ const globalDir = path.join(TEMPLATES_DIR, "global")
 const sectionsDir = path.join(TEMPLATES_DIR, "sections")
 
 const manifest = {
-  global: readEntries(globalDir, "/typst/templates/global", true),
+  global: readEntries(globalDir, `${BASE_PATH}/typst/templates/global`, true),
   sections: {},
 }
 
@@ -43,7 +44,7 @@ if (fs.existsSync(sectionsDir)) {
   for (const key of fs.readdirSync(sectionsDir)) {
     const p = path.join(sectionsDir, key)
     if (fs.statSync(p).isDirectory()) {
-      manifest.sections[key] = readEntries(p, `/typst/templates/sections/${key}`)
+      manifest.sections[key] = readEntries(p, `${BASE_PATH}/typst/templates/sections/${key}`)
     }
   }
 }

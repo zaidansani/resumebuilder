@@ -144,7 +144,7 @@ export default function EditorLayout() {
   }
 
   useEffect(() => {
-    fetch("/typst/templates/manifest.json")
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/typst/templates/manifest.json`)
       .then((r) => r.json())
       .then((m: TemplateManifest) => {
         setManifest(m)
