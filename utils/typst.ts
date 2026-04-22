@@ -7,15 +7,17 @@ async function ensureInit() {
   const mod = await import("@myriaddreamin/typst.react")
   const { $typst } = await import("@myriaddreamin/typst.ts")
 
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ""
+
   mod.TypstDocument.setWasmModuleInitOptions({
     beforeBuild: [],
     getModule: () =>
-      fetch("/typst/typst_ts_renderer_bg.wasm").then((r) => WebAssembly.compileStreaming(r)),
+      fetch(`${base}/typst/typst_ts_renderer_bg.wasm`).then((r) => WebAssembly.compileStreaming(r)),
   })
 
   $typst.setCompilerInitOptions({
     getModule: () =>
-      fetch("/typst/typst_ts_web_compiler_bg.wasm").then((r) =>
+      fetch(`${base}/typst/typst_ts_web_compiler_bg.wasm`).then((r) =>
         WebAssembly.compileStreaming(r)
       ),
   })
