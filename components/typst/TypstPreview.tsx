@@ -80,7 +80,7 @@ export default function TypstPreview({ artifact, error, onExportPdf }: TypstPrev
   const TypstDocument = TypstDocumentRef.current
 
   return (
-    <div className="flex h-full min-h-0 flex-col" style={{ width: 700 }}>
+    <div className="flex h-full min-h-0 w-full flex-col">
       <div className="flex items-center justify-between border-b border-border px-4 py-2 h-[41px]">
         <span className="text-xs font-medium text-muted-foreground">Preview</span>
         <div className="flex items-center gap-2">

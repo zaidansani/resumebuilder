@@ -10,7 +10,7 @@ import {
   downloadBlob,
   TemplateConfig,
 } from "@/utils/typst"
-import { IconDownload, IconPlayerPlay, IconUpload } from "@tabler/icons-react"
+import { IconDownload, IconLayoutColumns, IconLayoutRows, IconPlayerPlay, IconUpload } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import ResumeBuilder, { SectionKey } from "./ResumeBuilder"
 
@@ -59,15 +59,15 @@ function loadDraft(): {
   return { learner: EMPTY_LEARNER, order: [] }
 }
 
-const PREVIEW_W = 700
-
 export default function EditorLayout() {
-  const [stacked, setStacked] = useState(false)
+  const [stackedOverride, setStackedOverride] = useState<boolean | null>(null)
+  const [autoStacked, setAutoStacked] = useState(false)
+  const stacked = stackedOverride ?? autoStacked
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor")
 
   useEffect(() => {
     function check() {
-      setStacked(PREVIEW_W > window.innerWidth / 2)
+      setAutoStacked(window.innerWidth / window.innerHeight < 1.2)
     }
     check()
     window.addEventListener("resize", check)
@@ -79,20 +79,23 @@ export default function EditorLayout() {
   const [rendering, setRendering] = useState(false)
 
   const defaultProfileId = useRef(crypto.randomUUID())
-  const draft = loadDraft()
-  const [profiles, setProfiles] = useState<VariantProfile[]>(
-    draft.profiles ?? [
-      {
-        id: defaultProfileId.current,
-        label: "Default",
-        hidden: [],
-        variantSelections: {},
-      },
-    ]
-  )
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(
-    draft.activeProfileId ?? defaultProfileId.current
-  )
+  const [profiles, setProfiles] = useState<VariantProfile[]>(() => {
+    const d = loadDraft()
+    return (
+      d.profiles ?? [
+        {
+          id: defaultProfileId.current,
+          label: "Default",
+          hidden: [],
+          variantSelections: {},
+        },
+      ]
+    )
+  })
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(() => {
+    const d = loadDraft()
+    return d.activeProfileId ?? defaultProfileId.current
+  })
   const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? null
   const hiddenIds = new Set(activeProfile?.hidden ?? [])
 
@@ -154,8 +157,8 @@ export default function EditorLayout() {
     achievements: "/typst/templates/sections/achievements/default.typ",
   })
 
-  const [learner, setLearner] = useState<LearnerInfo>(draft.learner)
-  const [order, setOrder] = useState<SectionKey[]>(draft.order)
+  const [learner, setLearner] = useState<LearnerInfo>(() => loadDraft().learner)
+  const [order, setOrder] = useState<SectionKey[]>(() => loadDraft().order)
   const effectiveOrder: SectionKey[] =
     (activeProfile?.sectionOrder as SectionKey[] | undefined) ?? order
 
@@ -328,7 +331,9 @@ export default function EditorLayout() {
           </button>
         </div>
       ) : (
-        <span className="shrink-0 text-xs font-medium text-muted-foreground">Resume</span>
+        <span className="shrink-0 text-xs font-medium text-muted-foreground">
+          Resume
+        </span>
       )}
 
       <div className="flex flex-row items-center gap-2">
@@ -388,6 +393,16 @@ export default function EditorLayout() {
 
         <Button
           size="sm"
+          variant="ghost"
+          onClick={() => setStackedOverride(!stacked)}
+          className="shrink-0"
+          title={stacked ? "Side by side" : "Stack panels"}
+        >
+          {stacked ? <IconLayoutColumns className="h-3.5 w-3.5" /> : <IconLayoutRows className="h-3.5 w-3.5" />}
+        </Button>
+
+        <Button
+          size="sm"
           onClick={compile}
           disabled={rendering}
           className="shrink-0"
@@ -431,7 +446,11 @@ export default function EditorLayout() {
               />
             </div>
           ) : (
-            <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
+            <TypstPreview
+              artifact={artifact}
+              error={error}
+              onExportPdf={exportPdf}
+            />
           )}
         </div>
       </div>
@@ -469,7 +488,9 @@ export default function EditorLayout() {
         </div>
       </div>
 
-      <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
+      <div className="w-1/2 min-w-0">
+        <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
+      </div>
     </div>
   )
 }
