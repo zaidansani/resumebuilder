@@ -12,6 +12,7 @@ import {
 } from "@/utils/typst"
 import { IconDownload, IconLayoutColumns, IconLayoutRows, IconPlayerPlay, IconUpload } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
+import OnboardingModal from "./OnboardingModal"
 import ResumeBuilder, { SectionKey } from "./ResumeBuilder"
 
 interface TemplateEntry {
@@ -159,6 +160,71 @@ export default function EditorLayout() {
 
   const [learner, setLearner] = useState<LearnerInfo>(() => loadDraft().learner)
   const [order, setOrder] = useState<SectionKey[]>(() => loadDraft().order)
+
+  function isDraftEmpty(l: LearnerInfo) {
+    return (
+      !l.identification.personName.firstName &&
+      !l.identification.personName.surname &&
+      l.workExperience.length === 0 &&
+      l.education.length === 0
+    )
+  }
+
+  const [showOnboarding, setShowOnboarding] = useState(() => isDraftEmpty(loadDraft().learner))
+
+  useEffect(() => {
+    function onNew() { setShowOnboarding(true) }
+    window.addEventListener("resume-builder:new", onNew)
+    return () => window.removeEventListener("resume-builder:new", onNew)
+  }, [])
+
+  function getFilledSections(learner: LearnerInfo): SectionKey[] {
+    const sections: SectionKey[] = []
+    if (learner.workExperience.length > 0) sections.push("workExperience")
+    if (learner.education.length > 0) sections.push("education")
+    if (learner.skills.languages.length > 0 || learner.skills.other.length > 0)
+      sections.push("skills")
+    if (learner.projects.length > 0) sections.push("projects")
+    if (learner.achievements.length > 0) sections.push("achievements")
+    if (learner.publications.length > 0) sections.push("publications")
+    if (learner.volunteering.length > 0) sections.push("volunteering")
+    if (learner.references.length > 0) sections.push("references")
+    if (learner.coverLetter) sections.push("coverLetter")
+    return sections
+  }
+
+  function handleStartFresh(firstName: string, surname: string) {
+    const fresh: LearnerInfo = {
+      ...EMPTY_LEARNER,
+      identification: {
+        personName: { firstName, surname },
+        contact: {},
+      },
+    }
+    setLearner(fresh)
+    setOrder([])
+    setShowOnboarding(false)
+  }
+
+  function handleLinkedInImport(partial: Partial<LearnerInfo>) {
+    const imported = { ...EMPTY_LEARNER, ...partial }
+    setLearner(imported)
+    setOrder(getFilledSections(imported))
+    setShowOnboarding(false)
+  }
+
+  function handleJsonImport(data: {
+    learner: LearnerInfo
+    order?: string[]
+    profiles?: VariantProfile[]
+    activeProfileId?: string | null
+  }) {
+    if (data.learner) setLearner(data.learner)
+    if (data.order) setOrder(data.order as SectionKey[])
+    if (data.profiles) setProfiles(data.profiles)
+    if (data.activeProfileId !== undefined) setActiveProfileId(data.activeProfileId)
+    setShowOnboarding(false)
+  }
   const effectiveOrder: SectionKey[] =
     (activeProfile?.sectionOrder as SectionKey[] | undefined) ?? order
 
@@ -414,9 +480,19 @@ export default function EditorLayout() {
     </div>
   )
 
+  const onboardingModal = showOnboarding && (
+    <OnboardingModal
+      onStartFresh={handleStartFresh}
+      onLinkedIn={handleLinkedInImport}
+      onImportJson={handleJsonImport}
+      onClose={() => setShowOnboarding(false)}
+    />
+  )
+
   if (stacked) {
     return (
       <div className="flex h-[calc(100svh-3.5rem-3rem)] flex-col">
+        {onboardingModal}
         {editorToolbar}
         <div className="flex-1 overflow-hidden">
           {activeTab === "editor" ? (
@@ -459,6 +535,7 @@ export default function EditorLayout() {
 
   return (
     <div className="flex h-[calc(100svh-3.5rem-3rem)] divide-x divide-border">
+      {onboardingModal}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {editorToolbar}
         <div className="flex-1 overflow-y-auto">
