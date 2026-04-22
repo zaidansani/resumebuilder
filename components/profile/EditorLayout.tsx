@@ -4,8 +4,13 @@ import TypstPreview from "@/components/typst/TypstPreview"
 import { Button } from "@/components/ui/button"
 import { LearnerInfo, VariantProfile } from "@/types/resume"
 import { learnerToData } from "@/utils/learnerToData"
-import { compileWithTemplate, compileWithTemplatePdf, downloadBlob, TemplateConfig } from "@/utils/typst"
-import { IconPlayerPlay } from "@tabler/icons-react"
+import {
+  compileWithTemplate,
+  compileWithTemplatePdf,
+  downloadBlob,
+  TemplateConfig,
+} from "@/utils/typst"
+import { IconDownload, IconPlayerPlay, IconUpload } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import ResumeBuilder, { SectionKey } from "./ResumeBuilder"
 
@@ -33,36 +38,72 @@ const EMPTY_LEARNER: LearnerInfo = {
   references: [],
 }
 
-function loadDraft(): { learner: LearnerInfo; order: SectionKey[] } {
+function loadDraft(): {
+  learner: LearnerInfo
+  order: SectionKey[]
+  profiles?: VariantProfile[]
+  activeProfileId?: string | null
+} {
   try {
     const raw = localStorage.getItem("resume-builder:draft")
     if (raw) {
-      const { learner, order } = JSON.parse(raw)
+      const { learner, order, profiles, activeProfileId } = JSON.parse(raw)
       return {
         learner: learner ?? EMPTY_LEARNER,
         order: order ?? [],
+        profiles,
+        activeProfileId,
       }
     }
   } catch {}
   return { learner: EMPTY_LEARNER, order: [] }
 }
 
+const PREVIEW_W = 700
+
 export default function EditorLayout() {
+  const [stacked, setStacked] = useState(false)
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor")
+
+  useEffect(() => {
+    function check() {
+      setStacked(PREVIEW_W > window.innerWidth / 2)
+    }
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+
   const [artifact, setArtifact] = useState<Uint8Array | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [rendering, setRendering] = useState(false)
 
   const defaultProfileId = useRef(crypto.randomUUID())
-  const [profiles, setProfiles] = useState<VariantProfile[]>([
-    { id: defaultProfileId.current, label: "Default", hidden: [], variantSelections: {} },
-  ])
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(defaultProfileId.current)
+  const draft = loadDraft()
+  const [profiles, setProfiles] = useState<VariantProfile[]>(
+    draft.profiles ?? [
+      {
+        id: defaultProfileId.current,
+        label: "Default",
+        hidden: [],
+        variantSelections: {},
+      },
+    ]
+  )
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(
+    draft.activeProfileId ?? defaultProfileId.current
+  )
   const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? null
   const hiddenIds = new Set(activeProfile?.hidden ?? [])
 
   function createProfile() {
     const id = crypto.randomUUID()
-    const profile: VariantProfile = { id, label: `Profile ${profiles.length + 1}`, hidden: [], variantSelections: {} }
+    const profile: VariantProfile = {
+      id,
+      label: `Profile ${profiles.length + 1}`,
+      hidden: [],
+      variantSelections: {},
+    }
     setProfiles([...profiles, profile])
     setActiveProfileId(id)
   }
@@ -70,16 +111,21 @@ export default function EditorLayout() {
   function deleteProfile(id: string) {
     const next = profiles.filter((p) => p.id !== id)
     setProfiles(next)
-    if (activeProfileId === id) setActiveProfileId(next[next.length - 1]?.id ?? null)
+    if (activeProfileId === id)
+      setActiveProfileId(next[next.length - 1]?.id ?? null)
   }
 
   function renameProfile(id: string, label: string) {
-    setProfiles(profiles.map((p) => p.id === id ? { ...p, label } : p))
+    setProfiles(profiles.map((p) => (p.id === id ? { ...p, label } : p)))
   }
 
   function updateProfileAbout(about: string) {
     if (!activeProfile) return
-    setProfiles(profiles.map((p) => p.id === activeProfile.id ? { ...p, about: about || undefined } : p))
+    setProfiles(
+      profiles.map((p) =>
+        p.id === activeProfile.id ? { ...p, about: about || undefined } : p
+      )
+    )
   }
 
   function toggleHidden(entryId: string) {
@@ -87,14 +133,20 @@ export default function EditorLayout() {
     const next = activeProfile.hidden.includes(entryId)
       ? activeProfile.hidden.filter((h) => h !== entryId)
       : [...activeProfile.hidden, entryId]
-    setProfiles(profiles.map((p) => p.id === activeProfile.id ? { ...p, hidden: next } : p))
+    setProfiles(
+      profiles.map((p) =>
+        p.id === activeProfile.id ? { ...p, hidden: next } : p
+      )
+    )
   }
 
   const [manifest, setManifest] = useState<TemplateManifest | null>(null)
   const [globalTemplateUrl, setGlobalTemplateUrl] = useState<string>(
     "/typst/templates/global/default.typ"
   )
-  const [sectionTemplateUrls, setSectionTemplateUrls] = useState<Record<string, string>>({
+  const [sectionTemplateUrls, setSectionTemplateUrls] = useState<
+    Record<string, string>
+  >({
     workExperience: "/typst/templates/sections/workExperience/default.typ",
     education: "/typst/templates/sections/education/default.typ",
     skills: "/typst/templates/sections/skills/default.typ",
@@ -102,49 +154,50 @@ export default function EditorLayout() {
     achievements: "/typst/templates/sections/achievements/default.typ",
   })
 
-  const draft = loadDraft()
   const [learner, setLearner] = useState<LearnerInfo>(draft.learner)
   const [order, setOrder] = useState<SectionKey[]>(draft.order)
-  const effectiveOrder: SectionKey[] = (activeProfile?.sectionOrder as SectionKey[] | undefined) ?? order
+  const effectiveOrder: SectionKey[] =
+    (activeProfile?.sectionOrder as SectionKey[] | undefined) ?? order
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const compileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  function scheduleSave(nextLearner: LearnerInfo, nextOrder: SectionKey[]) {
+  useEffect(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
       try {
         localStorage.setItem(
           "resume-builder:draft",
-          JSON.stringify({ learner: nextLearner, order: nextOrder })
+          JSON.stringify({ learner, order, profiles, activeProfileId })
         )
       } catch {}
     }, 500)
-  }
+  }, [learner, order, profiles, activeProfileId])
 
-  function scheduleCompile() {
+  useEffect(() => {
     if (compileTimer.current) clearTimeout(compileTimer.current)
     compileTimer.current = setTimeout(() => compile(), 1500)
-  }
+  }, [learner, profiles, activeProfileId, sectionTemplateUrls])
 
   function handleLearnerChange(next: LearnerInfo) {
     setLearner(next)
-    scheduleSave(next, order)
-    scheduleCompile()
   }
 
   function handleOrderChange(next: SectionKey[]) {
+    setOrder(next)
     if (activeProfile) {
-      setProfiles(profiles.map((p) => p.id === activeProfile.id ? { ...p, sectionOrder: next } : p))
-    } else {
-      setOrder(next)
-      scheduleSave(learner, next)
+      setProfiles(
+        profiles.map((p) =>
+          p.id === activeProfile.id ? { ...p, sectionOrder: next } : p
+        )
+      )
     }
-    scheduleCompile()
   }
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/typst/templates/manifest.json`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/typst/templates/manifest.json`
+    )
       .then((r) => r.json())
       .then((m: TemplateManifest) => {
         setManifest(m)
@@ -155,18 +208,19 @@ export default function EditorLayout() {
         }
         setSectionTemplateUrls(defaults)
       })
-      .catch(() => {/* manifest not yet generated — dev without prebuild */})
+      .catch(() => {
+        /* manifest not yet generated — dev without prebuild */
+      })
   }, [])
-
-  // Auto-compile on load if there's saved data
-  useEffect(() => {
-    if (learner !== EMPTY_LEARNER && globalTemplateUrl) compile()
-  }, [globalTemplateUrl])
 
   const resolvedSectionManifest: Record<string, TemplateEntry[]> = {}
   for (const [key, fallbackUrl] of Object.entries(sectionTemplateUrls)) {
     const id = fallbackUrl.split("/").pop()?.replace(".typ", "") ?? "default"
-    const fallback: TemplateEntry = { id, label: id.charAt(0).toUpperCase() + id.slice(1), url: fallbackUrl }
+    const fallback: TemplateEntry = {
+      id,
+      label: id.charAt(0).toUpperCase() + id.slice(1),
+      url: fallbackUrl,
+    }
     resolvedSectionManifest[key] = manifest?.sections[key] ?? [fallback]
   }
 
@@ -183,7 +237,11 @@ export default function EditorLayout() {
     setRendering(true)
     setError(null)
     try {
-      const data = learnerToData(learnerRef.current, orderRef.current, activeProfileRef.current ?? undefined)
+      const data = learnerToData(
+        learnerRef.current,
+        orderRef.current,
+        activeProfileRef.current ?? undefined
+      )
       const config: TemplateConfig = {
         globalUrl: globalTemplateUrl,
         sections: orderRef.current
@@ -198,53 +256,202 @@ export default function EditorLayout() {
     }
   }
 
+  function exportJson() {
+    const data = JSON.stringify(
+      { learner, order, profiles, activeProfileId },
+      null,
+      2
+    )
+    const blob = new Blob([data], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "resume.json"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const importJsonRef = useRef<HTMLInputElement>(null)
+
+  function handleImportJson(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target?.result as string)
+        if (parsed.learner) setLearner(parsed.learner)
+        if (parsed.order) setOrder(parsed.order)
+        if (parsed.profiles) setProfiles(parsed.profiles)
+        if (parsed.activeProfileId !== undefined)
+          setActiveProfileId(parsed.activeProfileId)
+      } catch {
+        alert("Invalid JSON file")
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ""
+  }
+
+  const exportPdf = async () => {
+    if (!globalTemplateUrl) return
+    const data = learnerToData(
+      learnerRef.current,
+      orderRef.current,
+      activeProfileRef.current ?? undefined
+    )
+    const config: TemplateConfig = {
+      globalUrl: globalTemplateUrl,
+      sections: orderRef.current
+        .filter((key) => sectionTemplateUrls[key])
+        .map((key) => ({ key, url: sectionTemplateUrls[key] })),
+    }
+    const pdf = await compileWithTemplatePdf(data, config)
+    downloadBlob(pdf, "resume.pdf", "application/pdf")
+  }
+
+  const editorToolbar = (
+    <div className="flex h-[41px] shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-2">
+      {stacked ? (
+        <div className="flex gap-1">
+          <button
+            onClick={() => setActiveTab("editor")}
+            className={`rounded px-2 py-1 text-xs font-medium ${activeTab === "editor" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Editor
+          </button>
+          <button
+            onClick={() => setActiveTab("preview")}
+            className={`rounded px-2 py-1 text-xs font-medium ${activeTab === "preview" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Preview
+          </button>
+        </div>
+      ) : (
+        <span className="shrink-0 text-xs font-medium text-muted-foreground">Resume</span>
+      )}
+
+      <div className="flex flex-row items-center gap-2">
+        {manifest && manifest.global.length >= 1 && (
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            Template:
+            <select
+              value={globalTemplateUrl}
+              onChange={(e) => {
+                const url = e.target.value
+                setGlobalTemplateUrl(url)
+                const entry = manifest.global.find((t) => t.url === url)
+                if (entry?.sectionDefaults) {
+                  setSectionTemplateUrls((prev) => ({
+                    ...prev,
+                    ...entry.sectionDefaults,
+                  }))
+                }
+              }}
+              className="h-7 rounded-md border border-border bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring/50"
+            >
+              {manifest.global.map((t) => (
+                <option key={t.id} value={t.url}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={exportJson}
+          className="shrink-0"
+          title="Export JSON"
+        >
+          <IconDownload className="mr-1.5 h-3.5 w-3.5" />
+          Export
+        </Button>
+
+        <label title="Import JSON" className="shrink-0 cursor-pointer">
+          <Button size="sm" variant="ghost" asChild>
+            <span>
+              <IconUpload className="mr-1.5 h-3.5 w-3.5" />
+              Import
+            </span>
+          </Button>
+          <input
+            ref={importJsonRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={handleImportJson}
+          />
+        </label>
+
+        <Button
+          size="sm"
+          onClick={compile}
+          disabled={rendering}
+          className="shrink-0"
+        >
+          <IconPlayerPlay className="mr-1.5 h-3.5 w-3.5" />
+          {rendering ? "Compiling…" : "Render"}
+        </Button>
+      </div>
+    </div>
+  )
+
+  if (stacked) {
+    return (
+      <div className="flex h-[calc(100svh-3.5rem-3rem)] flex-col">
+        {editorToolbar}
+        <div className="flex-1 overflow-hidden">
+          {activeTab === "editor" ? (
+            <div className="h-full overflow-y-auto">
+              <ResumeBuilder
+                value={learner}
+                order={effectiveOrder}
+                onChange={handleLearnerChange}
+                onOrderChange={handleOrderChange}
+                manifest={{
+                  global: manifest?.global ?? [],
+                  sections: resolvedSectionManifest,
+                }}
+                sectionTemplateUrls={sectionTemplateUrls}
+                onSectionTemplateChange={(key, url) =>
+                  setSectionTemplateUrls((prev) => ({ ...prev, [key]: url }))
+                }
+                hiddenIds={activeProfile ? hiddenIds : undefined}
+                onToggleHidden={activeProfile ? toggleHidden : undefined}
+                profiles={profiles}
+                activeProfileId={activeProfileId}
+                onProfileSwitch={setActiveProfileId}
+                onProfileCreate={createProfile}
+                onProfileDelete={deleteProfile}
+                onProfileRename={renameProfile}
+                onProfileAboutChange={updateProfileAbout}
+              />
+            </div>
+          ) : (
+            <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-[calc(100svh-3.5rem-3rem)] divide-x divide-border">
-      <div className="flex w-1/2 flex-col overflow-hidden">
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-2 h-[41px]">
-          <span className="shrink-0 text-xs font-medium text-muted-foreground">
-            Resume
-          </span>
-
-          <div className="flex flex-row items-center gap-2">
-            {manifest && manifest.global.length >= 1 && (
-              <select
-                value={globalTemplateUrl}
-                onChange={(e) => {
-                  const url = e.target.value
-                  setGlobalTemplateUrl(url)
-                  const entry = manifest.global.find((t) => t.url === url)
-                  if (entry?.sectionDefaults) {
-                    setSectionTemplateUrls((prev) => ({ ...prev, ...entry.sectionDefaults }))
-                  }
-                }}
-                className="ml-auto h-7 rounded-md border border-border bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring/50"
-              >
-                {manifest.global.map((t) => (
-                  <option key={t.id} value={t.url}>{t.label}</option>
-                ))}
-              </select>
-            )}
-
-            <Button
-              size="sm"
-              onClick={compile}
-              disabled={rendering}
-              className="ml-auto shrink-0"
-            >
-              <IconPlayerPlay className="mr-1.5 h-3.5 w-3.5" />
-              {rendering ? "Compiling…" : "Render"}
-            </Button>
-          </div>
-        </div>
-
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {editorToolbar}
         <div className="flex-1 overflow-y-auto">
           <ResumeBuilder
             value={learner}
             order={effectiveOrder}
             onChange={handleLearnerChange}
             onOrderChange={handleOrderChange}
-            manifest={{ global: manifest?.global ?? [], sections: resolvedSectionManifest }}
+            manifest={{
+              global: manifest?.global ?? [],
+              sections: resolvedSectionManifest,
+            }}
             sectionTemplateUrls={sectionTemplateUrls}
             onSectionTemplateChange={(key, url) =>
               setSectionTemplateUrls((prev) => ({ ...prev, [key]: url }))
@@ -262,22 +469,7 @@ export default function EditorLayout() {
         </div>
       </div>
 
-      <TypstPreview
-        artifact={artifact}
-        error={error}
-        onExportPdf={async () => {
-          if (!globalTemplateUrl) return
-          const data = learnerToData(learnerRef.current, orderRef.current, activeProfileRef.current ?? undefined)
-          const config: TemplateConfig = {
-            globalUrl: globalTemplateUrl,
-            sections: orderRef.current
-              .filter((key) => sectionTemplateUrls[key])
-              .map((key) => ({ key, url: sectionTemplateUrls[key] })),
-          }
-          const pdf = await compileWithTemplatePdf(data, config)
-          downloadBlob(pdf, "resume.pdf", "application/pdf")
-        }}
-      />
+      <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
     </div>
   )
 }

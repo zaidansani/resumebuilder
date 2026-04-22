@@ -46,7 +46,7 @@ export default function TypstPreview({ artifact, error, onExportPdf }: TypstPrev
 
   const updateFitScale = useCallback(() => {
     if (!containerRef.current) return
-    const availableW = containerRef.current.clientWidth - PADDING
+    const availableW = containerRef.current.clientWidth - PADDING * 2
     setFitScale(Math.min(1, availableW / A4_W))
   }, [])
 
@@ -80,7 +80,7 @@ export default function TypstPreview({ artifact, error, onExportPdf }: TypstPrev
   const TypstDocument = TypstDocumentRef.current
 
   return (
-    <div className="flex w-1/2 flex-col">
+    <div className="flex h-full min-h-0 flex-col" style={{ width: 700 }}>
       <div className="flex items-center justify-between border-b border-border px-4 py-2 h-[41px]">
         <span className="text-xs font-medium text-muted-foreground">Preview</span>
         <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function TypstPreview({ artifact, error, onExportPdf }: TypstPrev
 
       <div
         ref={containerRef}
-        className={`flex-1 bg-muted p-6 overflow-y-auto ${zoom === "fit" ? "overflow-x-hidden" : "overflow-x-auto"}`}
+        className={`min-h-0 flex-1 bg-muted p-6 overflow-y-auto ${zoom === "fit" ? "overflow-x-hidden" : "overflow-x-auto"}`}
       >
         {error && (
           <pre className="text-xs whitespace-pre-wrap text-destructive">{error}</pre>

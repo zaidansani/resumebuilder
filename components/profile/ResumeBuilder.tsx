@@ -1,35 +1,51 @@
 "use client"
 
-import { useState } from "react"
-import { LearnerInfo, Skills, VariantProfile } from "@/types/resume"
 import { Button } from "@/components/ui/button"
+import { LearnerInfo, Skills, VariantProfile } from "@/types/resume"
 import {
-  IconPlus,
-  IconChevronUp,
+  IconBook,
+  IconBriefcase,
   IconChevronDown,
   IconChevronRight,
-  IconX,
+  IconChevronUp,
+  IconCode,
+  IconFileText,
+  IconHeart,
+  IconLayoutGrid,
+  IconPlus,
+  IconSchool,
   IconTrash,
+  IconTrophy,
+  IconUser,
+  IconUsers,
+  IconX,
 } from "@tabler/icons-react"
-import IdentificationSection from "./sections/IdentificationSection"
-import WorkExperienceSection from "./sections/WorkExperienceSection"
-import EducationSection from "./sections/EducationSection"
-import SkillsSection from "./sections/SkillsSection"
-import ProjectsSection from "./sections/ProjectsSection"
+import { useState } from "react"
 import AchievementsSection from "./sections/AchievementsSection"
+import EducationSection from "./sections/EducationSection"
+import IdentificationSection from "./sections/IdentificationSection"
+import ProjectsSection from "./sections/ProjectsSection"
+import SkillsSection from "./sections/SkillsSection"
+import WorkExperienceSection from "./sections/WorkExperienceSection"
 
-export type SectionKey = keyof Omit<LearnerInfo, "identification" | "profiles" | "activeProfileId">
+export type SectionKey = keyof Omit<
+  LearnerInfo,
+  "identification" | "profiles" | "activeProfileId"
+>
 
-const SECTION_META: Record<SectionKey, { label: string }> = {
-  workExperience: { label: "Work Experience" },
-  education: { label: "Education" },
-  skills: { label: "Skills" },
-  achievements: { label: "Achievements" },
-  publications: { label: "Publications" },
-  projects: { label: "Projects" },
-  volunteering: { label: "Volunteering" },
-  references: { label: "References" },
-  coverLetter: { label: "Cover Letter" },
+const SECTION_META: Record<
+  SectionKey,
+  { label: string; icon: React.ElementType }
+> = {
+  workExperience: { label: "Work Experience", icon: IconBriefcase },
+  education: { label: "Education", icon: IconSchool },
+  skills: { label: "Skills", icon: IconCode },
+  achievements: { label: "Achievements", icon: IconTrophy },
+  publications: { label: "Publications", icon: IconBook },
+  projects: { label: "Projects", icon: IconLayoutGrid },
+  volunteering: { label: "Volunteering", icon: IconHeart },
+  references: { label: "References", icon: IconUsers },
+  coverLetter: { label: "Cover Letter", icon: IconFileText },
 }
 
 const EMPTY_SKILLS: Skills = { languages: [], other: [] }
@@ -82,8 +98,6 @@ export default function ResumeBuilder({
   onProfileRename,
   onProfileAboutChange,
 }: Props) {
-  const [addMenuOpen, setAddMenuOpen] = useState(false)
-
   function update(patch: Partial<LearnerInfo>) {
     onChange({ ...value, ...patch })
   }
@@ -98,7 +112,6 @@ export default function ResumeBuilder({
 
   function addSection(key: SectionKey) {
     setOrder([...order, key])
-    setAddMenuOpen(false)
   }
 
   function removeSection(key: SectionKey) {
@@ -122,11 +135,18 @@ export default function ResumeBuilder({
   const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? null
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 py-6 px-4">
+    <div className="mx-auto w-9/10 space-y-4 px-6 py-6">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Profiles</span>
-          <Button variant="ghost" size="sm" onClick={onProfileCreate} className="h-6 px-2 text-xs">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            Profiles
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onProfileCreate}
+            className="h-6 px-2 text-xs"
+          >
             <IconPlus className="mr-1 h-3 w-3" />
             New
           </Button>
@@ -153,7 +173,9 @@ export default function ResumeBuilder({
             <div className="flex items-center gap-2">
               <input
                 value={activeProfile.label}
-                onChange={(e) => onProfileRename?.(activeProfile.id, e.target.value)}
+                onChange={(e) =>
+                  onProfileRename?.(activeProfile.id, e.target.value)
+                }
                 className="h-7 flex-1 rounded-md border border-border bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring/50"
                 placeholder="Profile name"
               />
@@ -169,9 +191,12 @@ export default function ResumeBuilder({
             <textarea
               value={activeProfile.about ?? ""}
               onChange={(e) => onProfileAboutChange?.(e.target.value)}
-              placeholder={value.identification.about || "About override (leave blank to use default)"}
+              placeholder={
+                value.identification.about ||
+                "About override (leave blank to use default)"
+              }
               rows={2}
-              className="w-full resize-none rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-ring/50 placeholder:text-muted-foreground/50"
+              className="w-full resize-none rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-ring/50"
             />
           </div>
         )}
@@ -179,7 +204,7 @@ export default function ResumeBuilder({
 
       <hr className="border-border" />
 
-      <SectionCard title="Identification" fixed>
+      <SectionCard title="Identification" icon={IconUser} fixed>
         <IdentificationSection
           value={value.identification}
           onChange={(v) => update({ identification: v })}
@@ -190,8 +215,11 @@ export default function ResumeBuilder({
         <SectionCard
           key={key}
           title={SECTION_META[key].label}
+          icon={SECTION_META[key].icon}
           onMoveUp={index > 0 ? () => moveUp(index) : undefined}
-          onMoveDown={index < order.length - 1 ? () => moveDown(index) : undefined}
+          onMoveDown={
+            index < order.length - 1 ? () => moveDown(index) : undefined
+          }
           onRemove={() => removeSection(key)}
           templateEntries={manifest?.sections[key]}
           selectedTemplateUrl={sectionTemplateUrls[key]}
@@ -244,38 +272,35 @@ export default function ResumeBuilder({
         </SectionCard>
       ))}
 
-      <div className="relative">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setAddMenuOpen((o) => !o)}
-          disabled={available.length === 0}
-          className="w-full"
-        >
-          <IconPlus className="mr-1.5 h-3.5 w-3.5" />
-          Add section
-        </Button>
-
-        {addMenuOpen && (
-          <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-border bg-popover shadow-lg overflow-hidden">
-            {available.map((key) => (
-              <button
-                key={key}
-                onClick={() => addSection(key)}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors"
-              >
-                {SECTION_META[key].label}
-              </button>
-            ))}
+      {available.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            Add section
+          </span>
+          <div className="grid grid-cols-3 gap-2">
+            {available.map((key) => {
+              const Icon = SECTION_META[key].icon
+              return (
+                <button
+                  key={key}
+                  onClick={() => addSection(key)}
+                  className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  {SECTION_META[key].label}
+                </button>
+              )
+            })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
 
 interface SectionCardProps {
   title: string
+  icon?: React.ElementType
   children: React.ReactNode
   fixed?: boolean
   onMoveUp?: () => void
@@ -288,6 +313,7 @@ interface SectionCardProps {
 
 function SectionCard({
   title,
+  icon: Icon,
   children,
   fixed,
   onMoveUp,
@@ -301,35 +327,55 @@ function SectionCard({
 
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+      <div className="flex w-full items-center gap-2 border-b border-border px-4 py-2.5">
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className="flex flex-1 items-center gap-1.5 text-left min-w-0"
+          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
         >
-          {collapsed
-            ? <IconChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            : <IconChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+          {collapsed ? (
+            <IconChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          ) : (
+            <IconChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          )}
+          {Icon && (
+            <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          )}
           <span className="text-sm font-semibold text-foreground">{title}</span>
         </button>
 
         {templateEntries && templateEntries.length >= 1 && (
-          <select
-            value={selectedTemplateUrl ?? ""}
-            onChange={(e) => onTemplateChange?.(e.target.value)}
-            className="h-6 rounded border border-border bg-background px-1.5 text-xs outline-none focus:ring-2 focus:ring-ring/50"
-          >
-            {templateEntries.map((t) => (
-              <option key={t.id} value={t.url}>{t.label}</option>
-            ))}
-          </select>
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            Template:
+            <select
+              value={selectedTemplateUrl ?? ""}
+              onChange={(e) => onTemplateChange?.(e.target.value)}
+              className="h-6 rounded border border-border bg-background px-1.5 text-xs outline-none focus:ring-2 focus:ring-ring/50"
+            >
+              {templateEntries.map((t) => (
+                <option key={t.id} value={t.url}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
 
         {!fixed && (
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon-xs" onClick={onMoveUp} disabled={!onMoveUp}>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={onMoveUp}
+              disabled={!onMoveUp}
+            >
               <IconChevronUp />
             </Button>
-            <Button variant="ghost" size="icon-xs" onClick={onMoveDown} disabled={!onMoveDown}>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={onMoveDown}
+              disabled={!onMoveDown}
+            >
               <IconChevronDown />
             </Button>
             <Button
@@ -344,7 +390,7 @@ function SectionCard({
         )}
       </div>
 
-      {!collapsed && <div className="p-4">{children}</div>}
+      {!collapsed && <div className="w-full p-4">{children}</div>}
     </div>
   )
 }
