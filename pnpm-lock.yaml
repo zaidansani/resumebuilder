@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  '@myriaddreamin/typst.react':
-    hash: e4adaf6ef7053b93de674e97ce11ff5d4cb2bf12f238d667b7e9b03144d8f4b5
-    path: patches/@myriaddreamin__typst.react.patch
+  '@myriaddreamin/typst.react@0.7.0-rc2':
+    hash: 99ea7f734c95f32b941378f9601d8a62e101b745018a9847fb55d801e6a19c83
+    path: patches/@myriaddreamin__typst.react@0.7.0-rc2.patch
 
 importers:
 
@@ -21,7 +21,7 @@ importers:
         version: 0.7.0-rc2
       '@myriaddreamin/typst.react':
         specifier: 0.7.0-rc2
-        version: 0.7.0-rc2(patch_hash=e4adaf6ef7053b93de674e97ce11ff5d4cb2bf12f238d667b7e9b03144d8f4b5)(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst.ts@0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        version: 0.7.0-rc2(patch_hash=99ea7f734c95f32b941378f9601d8a62e101b745018a9847fb55d801e6a19c83)(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst.ts@0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@myriaddreamin/typst.ts':
         specifier: 0.7.0-rc2
         version: 0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)
@@ -4483,7 +4483,7 @@ snapshots:
 
   '@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2': {}
 
-  '@myriaddreamin/typst.react@0.7.0-rc2(patch_hash=e4adaf6ef7053b93de674e97ce11ff5d4cb2bf12f238d667b7e9b03144d8f4b5)(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst.ts@0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@myriaddreamin/typst.react@0.7.0-rc2(patch_hash=99ea7f734c95f32b941378f9601d8a62e101b745018a9847fb55d801e6a19c83)(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst.ts@0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@myriaddreamin/typst-ts-renderer': 0.7.0-rc2
       '@myriaddreamin/typst.ts': 0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)

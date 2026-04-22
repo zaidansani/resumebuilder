@@ -1,2 +1,2 @@
 patchedDependencies:
-  '@myriaddreamin/typst.react': patches/@myriaddreamin__typst.react.patch
+  '@myriaddreamin/typst.react@0.7.0-rc2': patches/@myriaddreamin__typst.react@0.7.0-rc2.patch
