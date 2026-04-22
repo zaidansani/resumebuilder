@@ -1,6 +1,18 @@
 {
   "global": [
     {
+      "id": "compact",
+      "label": "Compact",
+      "url": "/typst/templates/global/compact.typ",
+      "sectionDefaults": {
+        "workExperience": "/typst/templates/sections/workExperience/default.typ",
+        "education": "/typst/templates/sections/education/default.typ",
+        "skills": "/typst/templates/sections/skills/default.typ",
+        "projects": "/typst/templates/sections/projects/default.typ",
+        "achievements": "/typst/templates/sections/achievements/default.typ"
+      }
+    },
+    {
       "id": "default",
       "label": "Default",
       "url": "/typst/templates/global/default.typ",

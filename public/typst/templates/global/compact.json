@@ -1,0 +1,10 @@
+{
+  "label": "Compact",
+  "sectionDefaults": {
+    "workExperience": "/typst/templates/sections/workExperience/default.typ",
+    "education": "/typst/templates/sections/education/default.typ",
+    "skills": "/typst/templates/sections/skills/default.typ",
+    "projects": "/typst/templates/sections/projects/default.typ",
+    "achievements": "/typst/templates/sections/achievements/default.typ"
+  }
+}

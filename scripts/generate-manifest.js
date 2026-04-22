@@ -21,7 +21,11 @@ function readEntries(dir, urlBase, readSidecar = false) {
           try {
             const sidecar = JSON.parse(fs.readFileSync(sidecarPath, "utf8"))
             if (sidecar.label) entry.label = sidecar.label
-            if (sidecar.sectionDefaults) entry.sectionDefaults = sidecar.sectionDefaults
+            if (sidecar.sectionDefaults) {
+              entry.sectionDefaults = Object.fromEntries(
+                Object.entries(sidecar.sectionDefaults).map(([k, v]) => [k, `${BASE_PATH}${v}`])
+              )
+            }
           } catch {
             console.warn(`Skipping malformed sidecar: ${sidecarPath}`)
           }
