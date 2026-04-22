@@ -31,11 +31,9 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: resume-builder
         run: pnpm install --frozen-lockfile
 
       - name: Build (generates manifest + next build)
-        working-directory: resume-builder
         run: pnpm build
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ vars.NEXT_PUBLIC_BASE_PATH }}
