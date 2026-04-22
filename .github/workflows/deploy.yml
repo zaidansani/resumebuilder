@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: resume-builder/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: resume-builder
@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: resume-builder/out
+          path: out
 
   deploy:
     needs: build
