@@ -5,6 +5,7 @@ const nextConfig = {
   // e.g. basePath: "/resumebuilder"
   // Leave empty if deploying to a custom domain or user/org page
   basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? "",
+  turbopack: {},
   webpack: (config) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true }
 
