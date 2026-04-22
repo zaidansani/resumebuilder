@@ -1,0 +1,53 @@
+{
+  "global": [
+    {
+      "id": "default",
+      "label": "Default",
+      "url": "/typst/templates/global/default.typ",
+      "sectionDefaults": {
+        "workExperience": "/typst/templates/sections/workExperience/default.typ",
+        "education": "/typst/templates/sections/education/default.typ",
+        "skills": "/typst/templates/sections/skills/default.typ",
+        "projects": "/typst/templates/sections/projects/default.typ",
+        "achievements": "/typst/templates/sections/achievements/default.typ"
+      }
+    }
+  ],
+  "sections": {
+    "achievements": [
+      {
+        "id": "default",
+        "label": "Default",
+        "url": "/typst/templates/sections/achievements/default.typ"
+      }
+    ],
+    "education": [
+      {
+        "id": "default",
+        "label": "Default",
+        "url": "/typst/templates/sections/education/default.typ"
+      }
+    ],
+    "projects": [
+      {
+        "id": "default",
+        "label": "Default",
+        "url": "/typst/templates/sections/projects/default.typ"
+      }
+    ],
+    "skills": [
+      {
+        "id": "default",
+        "label": "Default",
+        "url": "/typst/templates/sections/skills/default.typ"
+      }
+    ],
+    "workExperience": [
+      {
+        "id": "default",
+        "label": "Default",
+        "url": "/typst/templates/sections/workExperience/default.typ"
+      }
+    ]
+  }
+}

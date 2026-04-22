@@ -1,0 +1,18 @@
+diff --git a/dist/TypstDocument.js b/dist/TypstDocument.js
+--- a/dist/TypstDocument.js
++++ b/dist/TypstDocument.js
+@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+ import { useRef, useEffect } from 'react';
+ import { withGlobalRenderer } from '@myriaddreamin/typst.ts/dist/esm/contrib/global-renderer.mjs';
+ import * as typst from '@myriaddreamin/typst.ts';
+-import htmlLayerCss from './typst.css?inline';
++const htmlLayerCss = '';
+ let moduleInitOptions = {
+     beforeBuild: [],
+     getModule: () => '/node_modules/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm',
+@@ -40,4 +40,4 @@ export const TypstDocument = ({ fill, artifact, format }) => {
+         /// render after init
+     }, [displayDivRef, fill, artifact, format]);
+-    return (_jsxs("div", { children: [_jsx("style", { children: htmlLayerCss }), _jsx("div", { className: "typst-app", style: { height: '0' }, ref: displayDivRef })] }));
++    return (_jsxs("div", { children: [_jsx("style", { children: htmlLayerCss }), _jsx("div", { className: "typst-app", style: { height: 'auto' }, ref: displayDivRef })] }));
+ };
