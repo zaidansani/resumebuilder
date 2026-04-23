@@ -133,10 +133,6 @@ export interface Identification {
   personName: PersonName
   contact: ContactInfo
   demographics?: Demographics
-  /** Professional headline / job title */
-  headline?: string
-  /** Short bio / about me paragraph */
-  about?: string
   /** Base64 encoded image or URL */
   photo?: string
 }
@@ -317,7 +313,7 @@ export interface VariantProfile {
   hidden: string[]
   /** Map of entryId → variantId override; missing keys fall back to activeVariantId */
   variantSelections: Record<string, string>
-  /** Overrides identification.about when this profile is active */
+  headline?: string
   about?: string
   /** Section order for this profile; falls back to global order if absent */
   sectionOrder?: string[]

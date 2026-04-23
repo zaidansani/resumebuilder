@@ -12,7 +12,7 @@ export default function IdentificationSection({ value, onChange }: Props) {
     onChange({ ...value, [key]: val })
   }
 
-  const { personName, contact, headline } = value
+  const { personName, contact } = value
 
   return (
     <div className="space-y-4">
@@ -35,14 +35,7 @@ export default function IdentificationSection({ value, onChange }: Props) {
         />
       </div>
 
-      <Field
-        label="Headline"
-        value={headline ?? ""}
-        onChange={(v) => set("headline", v || undefined)}
-        placeholder="Software Engineer"
-      />
-
-      <div className="grid grid-cols-2 gap-3">
+<div className="grid grid-cols-2 gap-3">
         <Field
           label="Email"
           value={contact.email ?? ""}
@@ -118,16 +111,6 @@ export default function IdentificationSection({ value, onChange }: Props) {
         />
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-muted-foreground">About</span>
-        <textarea
-          value={value.about ?? ""}
-          onChange={(e) => set("about", e.target.value || undefined)}
-          placeholder="A short bio or summary..."
-          rows={3}
-          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring/50 placeholder:text-muted-foreground/50 resize-none"
-        />
-      </label>
     </div>
   )
 }

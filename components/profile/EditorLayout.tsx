@@ -132,6 +132,15 @@ export default function EditorLayout() {
     )
   }
 
+  function updateProfileHeadline(headline: string) {
+    if (!activeProfile) return
+    setProfiles(
+      profiles.map((p) =>
+        p.id === activeProfile.id ? { ...p, headline: headline || undefined } : p
+      )
+    )
+  }
+
   function toggleHidden(entryId: string) {
     if (!activeProfile) return
     const next = activeProfile.hidden.includes(entryId)
@@ -210,6 +219,8 @@ export default function EditorLayout() {
     const imported = { ...EMPTY_LEARNER, ...partial }
     setLearner(imported)
     setOrder(getFilledSections(imported))
+    if (partial.profiles) setProfiles(partial.profiles)
+    if (partial.activeProfileId !== undefined) setActiveProfileId(partial.activeProfileId ?? null)
     setShowOnboarding(false)
   }
 
@@ -491,10 +502,10 @@ export default function EditorLayout() {
 
   if (stacked) {
     return (
-      <div className="flex h-[calc(100svh-3.5rem-3rem)] flex-col">
+      <div className="flex h-full flex-1 flex-col overflow-hidden min-h-0">
         {onboardingModal}
         {editorToolbar}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           {activeTab === "editor" ? (
             <div className="h-full overflow-y-auto">
               <ResumeBuilder
@@ -519,6 +530,7 @@ export default function EditorLayout() {
                 onProfileDelete={deleteProfile}
                 onProfileRename={renameProfile}
                 onProfileAboutChange={updateProfileAbout}
+                onProfileHeadlineChange={updateProfileHeadline}
               />
             </div>
           ) : (
@@ -534,11 +546,11 @@ export default function EditorLayout() {
   }
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem-3rem)] divide-x divide-border">
+    <div className="flex h-full flex-1 divide-x divide-border overflow-hidden min-h-0">
       {onboardingModal}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden">
         {editorToolbar}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <ResumeBuilder
             value={learner}
             order={effectiveOrder}
@@ -561,11 +573,12 @@ export default function EditorLayout() {
             onProfileDelete={deleteProfile}
             onProfileRename={renameProfile}
             onProfileAboutChange={updateProfileAbout}
+            onProfileHeadlineChange={updateProfileHeadline}
           />
         </div>
       </div>
 
-      <div className="w-1/2 min-w-0">
+      <div className="min-w-0 min-h-0 flex-1 flex flex-col overflow-hidden">
         <TypstPreview artifact={artifact} error={error} onExportPdf={exportPdf} />
       </div>
     </div>

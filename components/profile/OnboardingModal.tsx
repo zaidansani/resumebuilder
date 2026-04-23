@@ -3,7 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { LearnerInfo, VariantProfile } from "@/types/resume"
 import { readLinkedInFiles } from "@/utils/linkedinImport"
-import { IconBrandLinkedin, IconFileText, IconUser, IconX } from "@tabler/icons-react"
+import {
+  IconBrandLinkedin,
+  IconFileText,
+  IconUser,
+  IconX,
+} from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 
 interface Props {
@@ -20,7 +25,12 @@ interface Props {
 
 type Screen = "home" | "fresh" | "linkedin"
 
-export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson, onClose }: Props) {
+export default function OnboardingModal({
+  onStartFresh,
+  onLinkedIn,
+  onImportJson,
+  onClose,
+}: Props) {
   const [screen, setScreen] = useState<Screen>("home")
   const [firstName, setFirstName] = useState("")
   const [surname, setSurname] = useState("")
@@ -91,7 +101,7 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
       <div className="relative w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
           aria-label="Close"
         >
           <IconX className="h-4 w-4" />
@@ -101,7 +111,8 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
           <>
             <h2 className="mb-1 text-lg font-semibold">Get started</h2>
             <p className="mb-6 text-sm text-muted-foreground">
-              Start from scratch, import your LinkedIn data, or load a previous export.
+              Start from scratch, import your LinkedIn data, or load a previous
+              export.
             </p>
 
             <div className="flex flex-col gap-3">
@@ -112,7 +123,9 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
                 <IconUser className="h-5 w-5 shrink-0 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Start fresh</p>
-                  <p className="text-xs text-muted-foreground">Begin with a blank resume</p>
+                  <p className="text-xs text-muted-foreground">
+                    Begin with a blank resume
+                  </p>
                 </div>
               </button>
 
@@ -123,7 +136,9 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
                 <IconBrandLinkedin className="h-5 w-5 shrink-0 text-[#0077b5]" />
                 <div>
                   <p className="text-sm font-medium">Import from LinkedIn</p>
-                  <p className="text-xs text-muted-foreground">Upload your LinkedIn data export CSVs</p>
+                  <p className="text-xs text-muted-foreground">
+                    Upload your LinkedIn data export CSVs.
+                  </p>
                 </div>
               </button>
 
@@ -131,7 +146,9 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
                 <IconFileText className="h-5 w-5 shrink-0 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Load saved resume</p>
-                  <p className="text-xs text-muted-foreground">Upload a Resume Builder JSON export</p>
+                  <p className="text-xs text-muted-foreground">
+                    Upload a Resume Builder JSON export
+                  </p>
                 </div>
                 <input
                   ref={jsonInputRef}
@@ -154,7 +171,9 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
               ← Back
             </button>
             <h2 className="mb-1 text-lg font-semibold">Start fresh</h2>
-            <p className="mb-6 text-sm text-muted-foreground">Enter your name to begin.</p>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Enter your name to begin.
+            </p>
             <form onSubmit={handleFreshSubmit} className="flex flex-col gap-3">
               <div className="flex gap-2">
                 <input
@@ -190,11 +209,22 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
             </button>
             <h2 className="mb-1 text-lg font-semibold">Import from LinkedIn</h2>
             <p className="mb-2 text-sm text-muted-foreground">
-              Select one or more CSV files from your LinkedIn data export. Recognised files:
+              Select one or more CSV files from your LinkedIn data export. To
+              export from LinkedIn, you can refer to the{" "}
+              <a
+                className="underline"
+                href="https://www.linkedin.com/help/linkedin/answer/a1339364/downloading-your-account-data"
+              >
+                link
+              </a>{" "}
+              here.
+            </p>
+            <p className="mb-2 text-sm text-muted-foreground">
+              Recognised files:
             </p>
             <p className="mb-6 font-mono text-xs text-muted-foreground">
-              Profile.csv · Positions.csv · Education.csv · Skills.csv · Languages.csv ·
-              Certifications.csv · Honors.csv · Projects.csv
+              Profile.csv · Positions.csv · Education.csv · Skills.csv ·
+              Languages.csv · Certifications.csv · Honors.csv · Projects.csv
             </p>
 
             <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-4 py-8 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted">
@@ -211,7 +241,9 @@ export default function OnboardingModal({ onStartFresh, onLinkedIn, onImportJson
             </label>
 
             {linkedinStatus && (
-              <p className="mt-3 text-xs text-muted-foreground">{linkedinStatus}</p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                {linkedinStatus}
+              </p>
             )}
           </>
         )}

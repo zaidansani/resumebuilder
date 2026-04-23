@@ -78,6 +78,7 @@ interface Props {
   onProfileDelete?: (id: string) => void
   onProfileRename?: (id: string, label: string) => void
   onProfileAboutChange?: (about: string) => void
+  onProfileHeadlineChange?: (headline: string) => void
 }
 
 export default function ResumeBuilder({
@@ -97,6 +98,7 @@ export default function ResumeBuilder({
   onProfileDelete,
   onProfileRename,
   onProfileAboutChange,
+  onProfileHeadlineChange,
 }: Props) {
   function update(patch: Partial<LearnerInfo>) {
     onChange({ ...value, ...patch })
@@ -188,16 +190,25 @@ export default function ResumeBuilder({
                 <IconTrash />
               </Button>
             </div>
-            <textarea
-              value={activeProfile.about ?? ""}
-              onChange={(e) => onProfileAboutChange?.(e.target.value)}
-              placeholder={
-                value.identification.about ||
-                "About override (leave blank to use default)"
-              }
-              rows={2}
-              className="w-full resize-none rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-ring/50"
-            />
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">Headline</span>
+              <input
+                value={activeProfile.headline ?? ""}
+                onChange={(e) => onProfileHeadlineChange?.(e.target.value)}
+                placeholder="Software Engineer"
+                className="rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-ring/50"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">About</span>
+              <textarea
+                value={activeProfile.about ?? ""}
+                onChange={(e) => onProfileAboutChange?.(e.target.value)}
+                placeholder="A short bio or summary..."
+                rows={5}
+                className="w-full resize-none rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-ring/50"
+              />
+            </div>
           </div>
         )}
       </div>

@@ -22,12 +22,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", figtree.variable)}
+      className={cn("antialiased h-svh overflow-hidden", fontMono.variable, "font-sans", figtree.variable)}
     >
-      <body className="flex flex-col min-h-svh">
+      <body className="flex flex-col h-svh overflow-hidden w-screen">
         <ThemeProvider>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 min-w-0 overflow-hidden flex flex-col">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>

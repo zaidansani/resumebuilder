@@ -238,14 +238,16 @@ function categoriseSkill(label: string): string {
 // Per-CSV parsers
 // ---------------------------------------------------------------------------
 
-function parseProfile(rows: Record<string, string>[]): Identification {
+function parseProfile(rows: Record<string, string>[]): { identification: Identification; headline: string | undefined; about: string | undefined } {
   const r = rows[0] ?? {}
   return {
-    personName: {
-      firstName: r["First Name"] ?? "",
-      surname: r["Last Name"] ?? "",
+    identification: {
+      personName: {
+        firstName: r["First Name"] ?? "",
+        surname: r["Last Name"] ?? "",
+      },
+      contact: {},
     },
-    contact: {},
     headline: r["Headline"] || undefined,
     about: r["Summary"] || undefined,
   }
@@ -363,7 +365,12 @@ export function importFromLinkedIn(
   const result: Partial<LearnerInfo> = {}
 
   const profileRows = files["Profile.csv"] ? parseCSV(files["Profile.csv"]) : []
-  if (profileRows.length) result.identification = parseProfile(profileRows)
+  if (profileRows.length) {
+    const { identification, headline, about } = parseProfile(profileRows)
+    result.identification = identification
+    result.profiles = [{ id: crypto.randomUUID(), label: "Default", hidden: [], variantSelections: {}, headline, about }]
+    result.activeProfileId = result.profiles[0].id
+  }
 
   const positionRows = files["Positions.csv"]
     ? parseCSV(files["Positions.csv"])

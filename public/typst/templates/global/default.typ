@@ -67,11 +67,11 @@
 
 #align(center)[
   #text(size: 22pt, weight: "bold")[#data.name]
-  #if data.headline == "" [
-    \ #text(size: 11pt, style: "italic")[#data.headline]
+  #if data.headline != "" [
+    \ #text(size: 11pt, style: "italic")[#data.headline] \
   ]
   #if data.contact.len() > 0 [
-    #text(size: 9.5pt, fill: luma(80))[#data.contact.map(c =>
+    \ #text(size: 9.5pt, fill: luma(80))[#data.contact.map(c =>
       if c.url != "" { link(c.url)[#c.label] } else { c.label }
     ).join("  •  ")]
   ]

@@ -68,7 +68,7 @@ export function learnerToData(info: LearnerInfo, sectionOrder: string[] = [], pr
   const hidden = new Set(profile?.hidden ?? [])
   const variantFor = (entryId: string, fallback: string) =>
     profile?.variantSelections[entryId] ?? fallback
-  const { personName, contact, headline } = identification
+  const { personName, contact } = identification
 
   const name = [personName.title, personName.firstName, personName.surname]
     .filter((s): s is string => Boolean(s))
@@ -91,8 +91,8 @@ export function learnerToData(info: LearnerInfo, sectionOrder: string[] = [], pr
   return {
     sectionOrder,
     name,
-    headline: headline ?? "",
-    about: profile?.about ?? identification.about ?? "",
+    headline: profile?.headline ?? "",
+    about: profile?.about ?? "",
     contact: contactParts,
     location: {
       city: contact.address?.municipality ?? "",
